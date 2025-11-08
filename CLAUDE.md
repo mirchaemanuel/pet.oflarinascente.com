@@ -1,3 +1,293 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a Laravel 12 application for **Onoranze Funebri La Rinascente - Pet Memorial Services**, a specialized funeral home website dedicated to pet memorial services. The site provides information about pet cremation, burial services, a virtual pet cemetery, blog articles, and contact/booking functionality.
+
+### Technology Stack
+- **Backend**: Laravel 12 (PHP 8.4)
+- **Frontend**: TALL Stack (Tailwind CSS 4, Alpine.js, Livewire 3, Laravel)
+- **Admin Panel**: Filament 4
+- **Database**: SQLite (development)
+- **Testing**: Pest 4 (with browser testing via Playwright)
+- **Code Quality**: Pint, PHPStan (Level 7), Rector
+
+### Key Features
+1. **Public Website**: Home, Services, Blog, Contact pages
+2. **Virtual Pet Cemetery**: Memorial pages for deceased pets with photos, dedications, virtual candles, and heart reactions
+3. **Service Management**: Configurable pet funeral services (cremation, burial, etc.)
+4. **Blog**: Articles about pet loss, grief support, services
+5. **Contact & Booking**: Forms for inquiries and service requests
+6. **Admin Panel**: Filament-based backoffice for managing all content
+
+## Development Commands
+
+### Quality Assurance & Testing
+```bash
+# Format code (Laravel Pint)
+composer format                    # Auto-fix formatting issues
+composer format -- --test          # Check formatting without fixing
+
+# Static Analysis (PHPStan - Level 7)
+composer analyse
+
+# Refactoring (Rector)
+composer refactor                  # Apply automated refactorings
+composer refactor -- --dry-run     # Preview refactorings
+
+# Testing (Pest 4)
+php artisan test                   # Run all tests
+php artisan test --filter=name     # Run specific test
+php artisan test tests/Feature/    # Run feature tests
+php artisan test tests/Browser/    # Run browser tests (Playwright)
+php artisan test --coverage        # Generate coverage report
+```
+
+### Development Workflow
+```bash
+# Start development environment (concurrent processes)
+composer dev                       # Runs: server, queue worker, pail logs, vite
+
+# Individual services
+php artisan serve                  # Development server
+php artisan queue:listen           # Queue worker
+php artisan pail                   # Real-time log viewer
+npm run dev                        # Vite dev server
+npm run build                      # Build assets for production
+
+# Database
+php artisan migrate                # Run migrations
+php artisan db:seed                # Seed database
+php artisan migrate:fresh --seed   # Fresh database with seed data
+
+# Filament
+php artisan filament:upgrade       # Upgrade Filament assets
+```
+
+### Initial Setup
+```bash
+composer setup                     # Complete setup: install deps, generate key, migrate, build assets
+```
+
+## Application Architecture
+
+### Directory Structure
+```
+app/
+├── Filament/              # Filament admin resources (auto-discovered)
+│   ├── Resources/         # CRUD resources for admin panel
+│   ├── Pages/             # Custom admin pages
+│   └── Widgets/           # Dashboard widgets
+├── Http/
+│   └── Controllers/       # Public frontend controllers
+├── Livewire/              # Livewire components for frontend
+├── Models/                # Eloquent models (all use LogsActivityAllDirty trait)
+├── Policies/              # Authorization policies (require deleteAny, forceDeleteAny methods)
+├── Providers/
+│   └── Filament/          # Filament panel providers
+└── Traits/                # Reusable traits (e.g., LogsActivityAllDirty)
+
+database/
+├── factories/             # Model factories for testing
+├── migrations/            # Database migrations
+└── seeders/               # Database seeders
+
+resources/
+├── css/
+│   └── app.css            # Tailwind v4 config with @theme directive
+├── js/
+│   └── app.js             # Alpine.js & Livewire
+└── views/
+    ├── components/        # Blade components
+    ├── layouts/           # Layout files
+    ├── livewire/          # Livewire component views
+    └── pages/             # Page views
+
+tests/
+├── Architecture/          # Architecture tests (Pest)
+├── Feature/               # Feature tests (preferred over Unit)
+├── Browser/               # Browser tests with Playwright
+└── Unit/                  # Unit tests (use sparingly)
+```
+
+### Core Domain Models
+
+**Pet Memorial System:**
+- `Pet`: Virtual cemetery entries (name, species, birth/death dates, photos, dedication)
+- `HeartReaction`: Heart reactions from visitors to pet memorials
+- `VirtualCandle`: Virtual candles lit for pets
+
+**Content Management:**
+- `Service`: Pet funeral services (cremation types, burial, pickup, etc.)
+- `Post`: Blog articles about pet loss, grief support, services
+- `Contact`: Contact form submissions
+- `Booking`: Service booking requests
+
+**System:**
+- `User`: Admin users (managed via Filament)
+- Activity logs via Spatie Activity Log (all models use `LogsActivityAllDirty` trait)
+
+### Filament Admin Panel
+
+**Configuration**: `app/Providers/Filament/AdminPanelServiceProvider.php`
+- **Panel ID**: `admin`
+- **Path**: `/admin`
+- **Primary Color**: Amber
+- **Auto-discovery**: Resources, Pages, Widgets
+
+**Key Resources** (to be created):
+- PetResource: Manage virtual cemetery entries
+- ServiceResource: Configure funeral services
+- PostResource: Manage blog articles
+- ContactResource: View contact submissions
+- BookingResource: Manage service bookings
+- UserResource: User management
+
+### Frontend Architecture (TALL Stack)
+
+**Livewire Components** (in `app/Livewire/`):
+- Public pages use Livewire for interactivity (forms, reactions, filtering)
+- Follow Livewire 3 conventions: `App\Livewire` namespace, `wire:model.live` for real-time updates
+- All components require single root element
+
+**Tailwind CSS v4**:
+- Configuration in `resources/css/app.css` using `@theme` directive
+- Custom color palette: Soft, emotionally appropriate colors for pet memorial context
+- Custom font: 'Instrument Sans' (already configured)
+- No `tailwind.config.js` file (CSS-first config)
+
+**Design Principles**:
+- Emotionally sensitive and delicate tone
+- Modern, clean, elegant aesthetic
+- Accessibility-first approach
+- Mobile-responsive
+
+### Testing Strategy
+
+**Preference**: Feature tests > Unit tests
+
+**Architecture Tests** (`tests/Architecture/ArchTest.php`):
+- All models must use `LogsActivityAllDirty` trait
+- All policies must have `deleteAny` and `forceDeleteAny` methods
+- No debug statements (`dd`, `dump`, `ray`, `die`)
+- PHP, Laravel, and security presets enforced
+
+**Browser Tests** (`tests/Browser/`):
+- Pest 4 with Playwright
+- Test user flows: viewing memorials, submitting forms, reactions
+- Configured in `tests/Pest.php` with `RefreshDatabase`
+
+**Test Patterns**:
+- Use Arrange/Act/Assert pattern
+- Use model factories for test data
+- Use `fake()` for Faker instance
+- Filament tests use `livewire()` helper
+
+### Code Quality Standards
+
+**PHP Standards** (enforced by Pint):
+- Strict types declaration: `declare(strict_types=1);`
+- Laravel preset with custom rules (see `pint.json`)
+- Explicit return types required
+- Constructor property promotion preferred
+- Global namespace imports enabled
+- Strict comparison enabled
+
+**PHPStan** (Level 7):
+- Larastan extension enabled
+- Analyzes `app/` directory
+- No errors tolerated
+
+**Rector**:
+- Configured for: dead code removal, code quality, type declarations, privatization, early returns
+- Skips: `AddOverrideAttributeToOverriddenMethodsRector`
+
+### Activity Logging
+
+All models use `App\Traits\LogsActivityAllDirty`:
+- Logs all model changes
+- Only dirty attributes logged
+- Log name: `crud`
+- Powered by Spatie Activity Log package
+
+### Important Conventions
+
+**Laravel 12 Structure**:
+- No `app/Http/Middleware/` directory
+- Middleware registered in `bootstrap/app.php`
+- No `app/Console/Kernel.php` (commands auto-register)
+- Service providers in `bootstrap/providers.php`
+
+**Model Conventions**:
+- Use `casts()` method instead of `$casts` property
+- Type-hint relationships with return types
+- Use factories and seeders for all models
+
+**Validation**:
+- Create FormRequest classes (not inline validation)
+- Check sibling FormRequests for array vs string rule format
+
+**URLs**:
+- Use named routes: `route('pet.show', $pet)`
+- Never use `env()` outside config files
+- Use `config('app.name')` instead
+
+**Frontend**:
+- If Vite manifest errors occur, run `npm run build` or `composer dev`
+
+### Multi-language Support (Future)
+
+Currently Italian-only. Architecture should support i18n for future English translations:
+- Use `__()` helpers in views
+- Store translatable content in `lang/` directory
+- Consider `spatie/laravel-translatable` for model translations
+
+## Development Notes
+
+**Environment**: Laravel Herd
+- Site available at: `https://pet-oflarinascente.test`
+- No need to manually start web server (Herd handles it)
+
+**Database**: SQLite
+- Located at `database/database.sqlite`
+- Perfect for development
+- Use `php artisan db:show` to inspect
+
+**Laravel Pulse**: Enabled (v1.4.3)
+- Monitor application performance
+- Access via Filament or dedicated route
+
+**Storage**:
+- Run `php artisan storage:link` to link public storage
+- File uploads (pet photos) stored in `storage/app/public/`
+
+## Documentation
+
+Project-specific documentation should be placed in `docs/` directory:
+- Architecture decisions
+- API documentation
+- User guides
+- Development workflows
+
+Only create documentation when explicitly requested.
+
+## Package Versions (Reference)
+
+- PHP: 8.4.14
+- Laravel: 12.37.0
+- Filament: 4.2.0
+- Livewire: 3.6.4
+- Pest: 4.x
+- Tailwind CSS: 4.x
+- Spatie Activity Log: 4.10
+- Laravel Pulse: 1.4.3
+- Larastan: 3.x
+- Rector: 2.x
+
+===
+
 <laravel-boost-guidelines>
 === foundation rules ===
 
@@ -298,7 +588,7 @@ Forms\Components\Select::make('user_id')
 
 ## Livewire Core
 - Use the `search-docs` tool to find exact version specific documentation for how to write Livewire & Livewire tests.
-- Use the `php artisan make:livewire [Posts\CreatePost]` artisan command to create new components
+- Use the `php artisan make:livewire [Posts\\CreatePost]` artisan command to create new components
 - State should live on the server, with the UI reflecting it.
 - All Livewire requests hit the Laravel backend, they're like regular HTTP requests. Always validate form data, and run authorization checks in Livewire actions.
 
