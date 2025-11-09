@@ -26,24 +26,6 @@ class Pet extends Model
     use LogsActivityAllDirty;
     use SoftDeletes;
 
-    protected $fillable = [
-        'uuid',
-        'name',
-        'species',
-        'breed',
-        'birth_date',
-        'death_date',
-        'age_years',
-        'age_months',
-        'dedication',
-        'story',
-        'owner_name',
-        'owner_email',
-        'owner_phone',
-        'is_published',
-        'published_at',
-    ];
-
     // Relationships
 
     /**

@@ -25,22 +25,6 @@ class Service extends Model
     use LogsActivityAllDirty;
     use SoftDeletes;
 
-    protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'detailed_description',
-        'price_from',
-        'price_notes',
-        'is_active',
-        'order',
-        'icon',
-        'image_path',
-        'features',
-        'meta_description',
-        'meta_keywords',
-    ];
-
     // Relationships
 
     /**

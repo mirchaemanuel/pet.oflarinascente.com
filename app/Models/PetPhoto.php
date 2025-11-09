@@ -21,14 +21,6 @@ class PetPhoto extends Model
 
     use LogsActivityAllDirty;
 
-    protected $fillable = [
-        'pet_id',
-        'path',
-        'disk',
-        'is_primary',
-        'order',
-    ];
-
     // Relationships
 
     /**

@@ -20,12 +20,6 @@ class HeartReaction extends Model
 
     use LogsActivityAllDirty;
 
-    protected $fillable = [
-        'pet_id',
-        'ip_address',
-        'user_agent',
-    ];
-
     // Relationships
 
     /**

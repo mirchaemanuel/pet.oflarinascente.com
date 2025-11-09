@@ -24,14 +24,6 @@ class VirtualCandle extends Model
 
     use LogsActivityAllDirty;
 
-    protected $fillable = [
-        'pet_id',
-        'lit_by_name',
-        'message',
-        'ip_address',
-        'expires_at',
-    ];
-
     // Relationships
 
     /**

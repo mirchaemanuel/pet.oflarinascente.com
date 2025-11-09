@@ -21,20 +21,6 @@ class Contact extends Model
 
     use LogsActivityAllDirty;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'phone',
-        'subject',
-        'message',
-        'is_read',
-        'read_at',
-        'replied_at',
-        'notes',
-        'ip_address',
-        'user_agent',
-    ];
-
     // Helpers
 
     public function markAsRead(): void

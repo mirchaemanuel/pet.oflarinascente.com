@@ -25,20 +25,6 @@ class Post extends Model
     use LogsActivityAllDirty;
     use SoftDeletes;
 
-    protected $fillable = [
-        'author_id',
-        'title',
-        'slug',
-        'excerpt',
-        'content',
-        'featured_image_path',
-        'reading_time_minutes',
-        'is_published',
-        'published_at',
-        'meta_description',
-        'meta_keywords',
-    ];
-
     // Relationships
 
     /**

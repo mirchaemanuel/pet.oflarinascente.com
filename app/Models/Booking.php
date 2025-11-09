@@ -25,26 +25,6 @@ class Booking extends Model
 
     use LogsActivityAllDirty;
 
-    protected $fillable = [
-        'service_id',
-        'pet_name',
-        'pet_species',
-        'pet_breed',
-        'pet_weight_kg',
-        'customer_name',
-        'customer_email',
-        'customer_phone',
-        'customer_address',
-        'preferred_date',
-        'preferred_time',
-        'message',
-        'special_requests',
-        'status',
-        'notes',
-        'confirmed_at',
-        'completed_at',
-    ];
-
     // Relationships
 
     /**
