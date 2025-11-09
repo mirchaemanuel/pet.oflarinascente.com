@@ -20,15 +20,6 @@ class Setting extends Model
 
     use LogsActivityAllDirty;
 
-    protected $fillable = [
-        'key',
-        'value',
-        'group',
-        'type',
-        'description',
-        'metadata',
-    ];
-
     /**
      * Get a setting value by key, with optional default
      */
