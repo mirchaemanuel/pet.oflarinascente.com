@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\BookingStatus;
 use App\Traits\LogsActivityAllDirty;
 use Database\Factories\BookingFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,10 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @method static BookingFactory factory($count = null, $state = [])
- * @method static Builder<Booking> byStatus(BookingStatus $status)
- * @method static Builder<Booking> pending()
- * @method static Builder<Booking> confirmed()
- * @method static Builder<Booking> recent()
  *
  * @property BookingStatus $status
  */
@@ -56,44 +53,6 @@ class Booking extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
-    }
-
-    // Scopes
-
-    /**
-     * @param  Builder<Booking>  $query
-     * @return Builder<Booking>
-     */
-    public function scopeByStatus(Builder $query, BookingStatus $status): Builder
-    {
-        return $query->where('status', $status);
-    }
-
-    /**
-     * @param  Builder<Booking>  $query
-     * @return Builder<Booking>
-     */
-    public function scopePending(Builder $query): Builder
-    {
-        return $query->where('status', BookingStatus::Pending);
-    }
-
-    /**
-     * @param  Builder<Booking>  $query
-     * @return Builder<Booking>
-     */
-    public function scopeConfirmed(Builder $query): Builder
-    {
-        return $query->where('status', BookingStatus::Confirmed);
-    }
-
-    /**
-     * @param  Builder<Booking>  $query
-     * @return Builder<Booking>
-     */
-    public function scopeRecent(Builder $query): Builder
-    {
-        return $query->orderBy('created_at', 'desc');
     }
 
     // Status Helpers
@@ -148,6 +107,48 @@ class Booking extends Model
         $this->update([
             'status' => BookingStatus::Cancelled,
         ]);
+    }
+
+    // Scopes
+
+    /**
+     * @param  Builder<Booking>  $query
+     * @return Builder<Booking>
+     */
+    #[Scope]
+    protected function byStatus(Builder $query, BookingStatus $status): Builder
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * @param  Builder<Booking>  $query
+     * @return Builder<Booking>
+     */
+    #[Scope]
+    protected function pending(Builder $query): Builder
+    {
+        return $query->where('status', BookingStatus::Pending);
+    }
+
+    /**
+     * @param  Builder<Booking>  $query
+     * @return Builder<Booking>
+     */
+    #[Scope]
+    protected function confirmed(Builder $query): Builder
+    {
+        return $query->where('status', BookingStatus::Confirmed);
+    }
+
+    /**
+     * @param  Builder<Booking>  $query
+     * @return Builder<Booking>
+     */
+    #[Scope]
+    protected function recent(Builder $query): Builder
+    {
+        return $query->orderBy('created_at', 'desc');
     }
 
     protected function casts(): array

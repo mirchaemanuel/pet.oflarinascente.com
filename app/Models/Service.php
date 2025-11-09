@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Traits\LogsActivityAllDirty;
 use Database\Factories\ServiceFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,8 +16,6 @@ use Illuminate\Support\Str;
 
 /**
  * @method static ServiceFactory factory($count = null, $state = [])
- * @method static Builder<Service> active()
- * @method static Builder<Service> ordered()
  */
 class Service extends Model
 {
@@ -52,26 +51,6 @@ class Service extends Model
         return $this->hasMany(Booking::class);
     }
 
-    // Scopes
-
-    /**
-     * @param  Builder<Service>  $query
-     * @return Builder<Service>
-     */
-    public function scopeActive(Builder $query): Builder
-    {
-        return $query->where('is_active', true);
-    }
-
-    /**
-     * @param  Builder<Service>  $query
-     * @return Builder<Service>
-     */
-    public function scopeOrdered(Builder $query): Builder
-    {
-        return $query->orderBy('order')->orderBy('name');
-    }
-
     // Route Key
 
     public function getRouteKeyName(): string
@@ -86,6 +65,28 @@ class Service extends Model
                 $service->slug = Str::slug($service->name);
             }
         });
+    }
+
+    // Scopes
+
+    /**
+     * @param  Builder<Service>  $query
+     * @return Builder<Service>
+     */
+    #[Scope]
+    protected function active(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * @param  Builder<Service>  $query
+     * @return Builder<Service>
+     */
+    #[Scope]
+    protected function ordered(Builder $query): Builder
+    {
+        return $query->orderBy('order')->orderBy('name');
     }
 
     protected function casts(): array

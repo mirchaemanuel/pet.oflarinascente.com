@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\PetSpecies;
 use App\Traits\LogsActivityAllDirty;
 use Database\Factories\PetFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,8 +17,6 @@ use Illuminate\Support\Str;
 
 /**
  * @method static PetFactory factory($count = null, $state = [])
- * @method static Builder<Pet> published()
- * @method static Builder<Pet> bySpecies(PetSpecies $species)
  */
 class Pet extends Model
 {
@@ -83,27 +82,6 @@ class Pet extends Model
             });
     }
 
-    // Scopes
-
-    /**
-     * @param  Builder<Pet>  $query
-     * @return Builder<Pet>
-     */
-    public function scopePublished(Builder $query): Builder
-    {
-        return $query->where('is_published', true)
-            ->whereNotNull('published_at');
-    }
-
-    /**
-     * @param  Builder<Pet>  $query
-     * @return Builder<Pet>
-     */
-    public function scopeBySpecies(Builder $query, PetSpecies $species): Builder
-    {
-        return $query->where('species', $species);
-    }
-
     // Accessors
 
     public function getRouteKeyName(): string
@@ -139,6 +117,29 @@ class Pet extends Model
                 $pet->uuid = (string) Str::uuid();
             }
         });
+    }
+
+    // Scopes
+
+    /**
+     * @param  Builder<Pet>  $query
+     * @return Builder<Pet>
+     */
+    #[Scope]
+    protected function published(Builder $query): Builder
+    {
+        return $query->where('is_published', true)
+            ->whereNotNull('published_at');
+    }
+
+    /**
+     * @param  Builder<Pet>  $query
+     * @return Builder<Pet>
+     */
+    #[Scope]
+    protected function bySpecies(Builder $query, PetSpecies $species): Builder
+    {
+        return $query->where('species', $species);
     }
 
     protected function casts(): array

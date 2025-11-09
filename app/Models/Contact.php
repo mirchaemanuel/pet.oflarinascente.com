@@ -6,15 +6,13 @@ namespace App\Models;
 
 use App\Traits\LogsActivityAllDirty;
 use Database\Factories\ContactFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * @method static ContactFactory factory($count = null, $state = [])
- * @method static Builder<Contact> unread()
- * @method static Builder<Contact> read()
- * @method static Builder<Contact> recent()
  */
 class Contact extends Model
 {
@@ -37,35 +35,6 @@ class Contact extends Model
         'user_agent',
     ];
 
-    // Scopes
-
-    /**
-     * @param  Builder<Contact>  $query
-     * @return Builder<Contact>
-     */
-    public function scopeUnread(Builder $query): Builder
-    {
-        return $query->where('is_read', false);
-    }
-
-    /**
-     * @param  Builder<Contact>  $query
-     * @return Builder<Contact>
-     */
-    public function scopeRead(Builder $query): Builder
-    {
-        return $query->where('is_read', true);
-    }
-
-    /**
-     * @param  Builder<Contact>  $query
-     * @return Builder<Contact>
-     */
-    public function scopeRecent(Builder $query): Builder
-    {
-        return $query->orderBy('created_at', 'desc');
-    }
-
     // Helpers
 
     public function markAsRead(): void
@@ -81,6 +50,38 @@ class Contact extends Model
         $this->update([
             'replied_at' => now(),
         ]);
+    }
+
+    // Scopes
+
+    /**
+     * @param  Builder<Contact>  $query
+     * @return Builder<Contact>
+     */
+    #[Scope]
+    protected function unread(Builder $query): Builder
+    {
+        return $query->where('is_read', false);
+    }
+
+    /**
+     * @param  Builder<Contact>  $query
+     * @return Builder<Contact>
+     */
+    #[Scope]
+    protected function read(Builder $query): Builder
+    {
+        return $query->where('is_read', true);
+    }
+
+    /**
+     * @param  Builder<Contact>  $query
+     * @return Builder<Contact>
+     */
+    #[Scope]
+    protected function recent(Builder $query): Builder
+    {
+        return $query->orderBy('created_at', 'desc');
     }
 
     protected function casts(): array
